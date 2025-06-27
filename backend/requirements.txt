@@ -6,3 +6,4 @@ ultralytics
 openai
 gunicorn
 requests
+gdown
