@@ -5,3 +5,4 @@ mediapipe
 ultralytics
 openai
 gunicorn
+requests
