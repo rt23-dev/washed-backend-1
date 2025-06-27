@@ -10,7 +10,6 @@ import requests
 PRO_CACHE_PATH = "static/pro_cached.pkl"
 PRO_CACHE_URL = "https://drive.google.com/uc?export=download&id=1Rk-YjH3whBHa4i-OGOaj2TWIV59gTgfK"
 
-# Download if not already present
 if not os.path.exists(PRO_CACHE_PATH):
     print("📥 Downloading pro golfer cache...")
     r = requests.get(PRO_CACHE_URL)
@@ -19,11 +18,10 @@ if not os.path.exists(PRO_CACHE_PATH):
         f.write(r.content)
     print("✅ Downloaded and saved .pkl.")
 
-# Load cached analysis
-print("⏳ Loading pro golfer video...")
+print("⏳ Loading pro golfer video cache...")
 with open(PRO_CACHE_PATH, "rb") as f:
     pro_cached = pickle.load(f)
-print("✅ Loaded pro golfer video.")
+print("✅ Loaded pro golfer video cache.")
 
 app = Flask(__name__, static_url_path='/outputs', static_folder='outputs')
 CORS(app)
