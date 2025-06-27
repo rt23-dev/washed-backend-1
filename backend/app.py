@@ -35,7 +35,11 @@ def analyze():
         "videoUrl": f"http://localhost:5000/outputs/{os.path.basename(output_path)}",
         "similarity": similarity
     })
-
+    
+@app.route("/")
+def home():
+    return "Hello from Washed backend!"
+    
 #@app.route("/outputs/<filename>")
 #def serve_output_video(filename):
 #    return send_from_directory("outputs", filename, mimetype="video/mp4")
@@ -46,4 +50,4 @@ print("✅ Flask app starting...")
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
+    app.run(host='0.0.0.0', port=port)
