@@ -1,25 +1,22 @@
+# Use an official Python image
 FROM python:3.10-slim
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    ffmpeg \
-    libsm6 \
-    libxext6 \
-    libgl1-mesa-glx \
-    && rm -rf /var/lib/apt/lists/*
+# Install dependencies
+RUN apt-get update && \
+    apt-get install -y ffmpeg libgl1-mesa-glx && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
 
 # Copy code
-COPY . /app
+COPY backend /app
 
-# Install Python dependencies
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+# Install Python packages
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Expose port
 EXPOSE 5000
 
 # Run the app
-CMD ["python", "app.py"]
+CMD ["python", "main.py"]
