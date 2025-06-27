@@ -2,17 +2,31 @@ import os
 import uuid
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-from two_vid_comparision import run_analysis  # Import your analysis function
-from two_vid_comparision import process_video  # Import your video processing function
+from two_vid_comparision import run_analysis
 from pathlib import Path
+import pickle
+import requests
 
-pro_video_path = "static/pro.mp4"
-print("⏳ Caching pro golfer video...")
-pro_cached = process_video(pro_video_path)
-print("✅ Cached pro golfer video.")
+PRO_CACHE_PATH = "static/pro_cached.pkl"
+PRO_CACHE_URL = "https://drive.google.com/uc?export=download&id=1Rk-YjH3whBHa4i-OGOaj2TWIV59gTgfK"
+
+# Download if not already present
+if not os.path.exists(PRO_CACHE_PATH):
+    print("📥 Downloading pro golfer cache...")
+    r = requests.get(PRO_CACHE_URL)
+    os.makedirs("static", exist_ok=True)
+    with open(PRO_CACHE_PATH, "wb") as f:
+        f.write(r.content)
+    print("✅ Downloaded and saved .pkl.")
+
+# Load cached analysis
+print("⏳ Loading pro golfer video...")
+with open(PRO_CACHE_PATH, "rb") as f:
+    pro_cached = pickle.load(f)
+print("✅ Loaded pro golfer video.")
 
 app = Flask(__name__, static_url_path='/outputs', static_folder='outputs')
-CORS(app)  # Allow requests from frontend
+CORS(app)
 
 @app.route("/analyze", methods=["POST"])
 def analyze():
@@ -20,33 +34,22 @@ def analyze():
         return jsonify({"error": "No file uploaded"}), 400
 
     user_file = request.files["file"]
-    pro_path = "static/pro.mp4"  # Replace with your actual pro video path
-
-    # Save uploaded file
     user_filename = f"uploads/{uuid.uuid4()}_user.mp4"
     os.makedirs("uploads", exist_ok=True)
     user_file.save(user_filename)
 
-    # Run analysis
     output_path, feedback, similarity = run_analysis(user_filename, pro_cached=pro_cached)
-    filename_only = Path(output_path).name
     return jsonify({
         "feedback": feedback,
-        "videoUrl": f"http://localhost:5000/outputs/{os.path.basename(output_path)}",
+        "videoUrl": f"http://localhost:5000/outputs/{Path(output_path).name}",
         "similarity": similarity
     })
-    
+
 @app.route("/")
 def home():
     return "Hello from Washed backend!"
-    
-#@app.route("/outputs/<filename>")
-#def serve_output_video(filename):
-#    return send_from_directory("outputs", filename, mimetype="video/mp4")
 
 print("✅ Flask app starting...")
-
-
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 10000))
