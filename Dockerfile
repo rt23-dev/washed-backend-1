@@ -12,4 +12,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 10000
 
 # Use Gunicorn for production server
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:$PORT"]
+CMD bash -c "gunicorn app:app --bind 0.0.0.0:${PORT:-10000}"
