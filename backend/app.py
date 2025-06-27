@@ -6,16 +6,15 @@ from two_vid_comparision import run_analysis
 from pathlib import Path
 import pickle
 import requests
+import gdown
 
 PRO_CACHE_PATH = "static/pro_cached.pkl"
-PRO_CACHE_URL = "https://drive.google.com/uc?export=download&id=1Rk-YjH3whBHa4i-OGOaj2TWIV59gTgfK"
+PRO_CACHE_URL = "https://drive.google.com/uc?id=1Rk-YjH3whBHa4i-OGOaj2TWIV59gTgfK"
 
 if not os.path.exists(PRO_CACHE_PATH):
     print("📥 Downloading pro golfer cache...")
-    r = requests.get(PRO_CACHE_URL)
     os.makedirs("static", exist_ok=True)
-    with open(PRO_CACHE_PATH, "wb") as f:
-        f.write(r.content)
+    gdown.download(PRO_CACHE_URL, PRO_CACHE_PATH, quiet=False)
     print("✅ Downloaded and saved .pkl.")
 
 print("⏳ Loading pro golfer video cache...")
