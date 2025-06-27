@@ -1,27 +1,40 @@
 import os
 import uuid
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from two_vid_comparision import run_analysis
 from pathlib import Path
 import pickle
-import requests
 import gdown
 
 PRO_CACHE_PATH = "static/pro_cached.pkl"
 PRO_CACHE_URL = "https://drive.google.com/uc?id=1Rk-YjH3whBHa4i-OGOaj2TWIV59gTgfK"
 
-if not os.path.exists(PRO_CACHE_PATH):
+# Ensure 'static' directory exists
+os.makedirs("static", exist_ok=True)
+
+# Check if valid pickle exists
+pro_cached = None
+if os.path.exists(PRO_CACHE_PATH):
+    try:
+        print("⏳ Loading cached pro golfer video...")
+        with open(PRO_CACHE_PATH, "rb") as f:
+            pro_cached = pickle.load(f)
+        print("✅ Loaded from cache.")
+    except Exception as e:
+        print(f"⚠️ Failed to load cache: {e}")
+        os.remove(PRO_CACHE_PATH)  # Remove corrupted file
+
+# If cache wasn't loaded, download and load
+if pro_cached is None:
     print("📥 Downloading pro golfer cache...")
-    os.makedirs("static", exist_ok=True)
     gdown.download(PRO_CACHE_URL, PRO_CACHE_PATH, quiet=False)
-    print("✅ Downloaded and saved .pkl.")
+    print("✅ Downloaded cache file.")
+    with open(PRO_CACHE_PATH, "rb") as f:
+        pro_cached = pickle.load(f)
+    print("✅ Loaded downloaded cache.")
 
-print("⏳ Loading pro golfer video cache...")
-with open(PRO_CACHE_PATH, "rb") as f:
-    pro_cached = pickle.load(f)
-print("✅ Loaded pro golfer video cache.")
-
+# --- Flask setup ---
 app = Flask(__name__, static_url_path='/outputs', static_folder='outputs')
 CORS(app)
 
